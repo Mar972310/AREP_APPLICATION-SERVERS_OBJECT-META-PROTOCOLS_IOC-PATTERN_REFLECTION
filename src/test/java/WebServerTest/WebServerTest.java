@@ -9,6 +9,8 @@ import java.net.URL;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.After;
@@ -217,7 +219,7 @@ public class WebServerTest {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             String response = in.readLine();
             in.close();
-            assertEquals("{\"response\":\"Get received: Hello maria !\"}", response);
+            assertEquals("{\"response\":\"Hello maria !\"}", response);
             request.disconnect();
 
         } catch (Exception e) {
@@ -245,6 +247,26 @@ public class WebServerTest {
         }
     }
 
+    @Test
+    public void notShouldLoadGreetingControllerWithQuery() throws Exception {
+        String file = "app/greeting?name=maria";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertNotEquals("{\"response\":\"Hello juan !\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     //voy aqui
     @Test
     public void shouldLoadMathControllerPIWithQuery() throws Exception {
@@ -258,7 +280,7 @@ public class WebServerTest {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             String response = in.readLine();
             in.close();
-            assertEquals("{\"response\":\"Get received: Hello maria !\"}", response);
+            assertEquals("{\"response\":\"3.14159\"}", response);
             request.disconnect();
 
         } catch (Exception e) {
@@ -268,7 +290,7 @@ public class WebServerTest {
 
     @Test
     public void shouldLoadMathControllerPIWithoutQuery() throws Exception {
-        String file = "app/greeting";
+        String file = "app/pi";
         try {
             URL requestUrl = new URL(URL + file);
             HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
@@ -278,7 +300,7 @@ public class WebServerTest {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             String response = in.readLine();
             in.close();
-            assertEquals("{\"response\":\"Hello world !\"}", response);
+            assertEquals("{\"response\":\"3.14\"}", response);
             request.disconnect();
 
         } catch (Exception e) {
@@ -287,42 +309,327 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadRestPost() throws Exception {
-        String file = "app/hellopost?name=valentina";
+    public void notShouldLoadMathControllerPIWithQuery() throws Exception {
+        String file = "app/pi?decimals=5";
         try {
             URL requestUrl = new URL(URL + file);
             HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
-            request.setRequestMethod("POST");
+            request.setRequestMethod("GET");
             int responseCode = request.getResponseCode();
-            assertEquals(201, responseCode);
+            assertEquals(200, responseCode);
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             String response = in.readLine();
             in.close();
-            assertEquals("{\"response\":\"Post received: valentina\"}", response);
+            assertNotEquals("{\"response\":\"3.141\"}", response);
             request.disconnect();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Test
-    public void notShouldLoadRestPost() throws Exception {
-        String file = "app/hello/x?name=valentina";
+    public void shouldLoadMathControllerSumWithQuery() throws Exception {
+        String file = "app/sum?number=3,2,5";
         try {
             URL requestUrl = new URL(URL + file);
             HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
-            request.setRequestMethod("POST");
+            request.setRequestMethod("GET");
             int responseCode = request.getResponseCode();
-            assertEquals(404, responseCode);
+            assertEquals(200, responseCode);
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             String response = in.readLine();
             in.close();
-            assertEquals("{\"response\":Method not supported}", response);
+            assertEquals("{\"response\":\"10\"}", response);
             request.disconnect();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void shouldLoadMathControllerSumWithoutQuery() throws Exception {
+        String file = "app/sum";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertEquals("{\"response\":\"No ingresó números\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void notShouldLoadMathControllerSumWithQuery() throws Exception {
+        String file = "app/sum?number=5,7";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertNotEquals("{\"response\":\"10\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void shouldLoadMathControllerRestWithQuery() throws Exception {
+        String file = "app/rest?number=3,2,5";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertEquals("{\"response\":\"-4\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void shouldLoadMathControllerRestWithoutQuery() throws Exception {
+        String file = "app/rest";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertEquals("{\"response\":\"No ingresó números\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void notShouldLoadMathControllerRestWithQuery() throws Exception {
+        String file = "app/rest?number=5,7";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertNotEquals("{\"response\":\"10\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    
+    @Test
+    public void shouldLoadMathControllerMulWithQuery() throws Exception {
+        String file = "app/mul?number=3,2,5";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertEquals("{\"response\":\"30\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void shouldLoadMathControllerMulWithoutQuery() throws Exception {
+        String file = "app/mul";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertEquals("{\"response\":\"No ingresó números\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void shouldLoadMathControllerMul1WithoutQuery() throws Exception {
+        String file = "app/mul?number=1";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertEquals("{\"response\":\"Faltan números para la multiplicación\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void notShouldLoadMathControllerMulWithQuery() throws Exception {
+        String file = "app/mul?number=5,7";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertNotEquals("{\"response\":\"10\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //
+    @Test
+    public void shouldLoadMathControllerDivWithQuery() throws Exception {
+        String file = "app/div?number=4,2";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertEquals("{\"response\":\"2.0\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void shouldLoadMathControllerDiv2WithQuery() throws Exception {
+        String file = "app/div?number=4,0";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertEquals("{\"response\":\"No se puede dividir por 0\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void shouldLoadMathControllerDiv1WithoutQuery() throws Exception {
+        String file = "app/div?number=1";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertEquals("{\"response\":\"Faltan números para la divisón\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void shouldLoadMathControllerDivWithoutQuery() throws Exception {
+        String file = "app/div";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertEquals("{\"response\":\"No ingresó números\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void notShouldLoadMathControllerDivWithQuery() throws Exception {
+        String file = "app/mul?number=5,7";
+        try {
+            URL requestUrl = new URL(URL + file);
+            HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
+            request.setRequestMethod("GET");
+            int responseCode = request.getResponseCode();
+            assertEquals(200, responseCode);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String response = in.readLine();
+            in.close();
+            assertNotEquals("{\"response\":\"10\"}", response);
+            request.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     
     @AfterClass
     public static void tearDown(){

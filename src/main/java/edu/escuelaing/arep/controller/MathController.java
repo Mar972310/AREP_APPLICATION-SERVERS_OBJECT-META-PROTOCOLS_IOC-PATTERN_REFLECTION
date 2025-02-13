@@ -17,7 +17,9 @@ public class MathController {
 
     @GetMapping("/sum")
     public String sum(@RequestParam(value="number", defaultValue="") String number) {
-        if (number.isEmpty()) return "No ingresó números";
+        if (number.isEmpty()){
+            return "No ingresó números";
+        }
         String[] numbers = number.split(",");
         int sum = 0;
         for (String num : numbers) {
@@ -74,10 +76,13 @@ public class MathController {
 
     @GetMapping("/sqrt")
     public String sqrt(@RequestParam(value="number", defaultValue="") String numbers) {
-        if (numbers.isEmpty()) return "No ingresó números";
+        if (numbers.isEmpty()) {
+            return "No ingresó números";
+        }
         int number = Integer.parseInt(numbers.trim());
-        if (number < 0) return "No se puede calcular la raíz cuadrada de un número negativo";
-        
+        if (number < 0) {
+            return "No se puede calcular la raíz cuadrada de un número negativo";
+        }
         return String.valueOf(Math.sqrt(number));
     }
 }
