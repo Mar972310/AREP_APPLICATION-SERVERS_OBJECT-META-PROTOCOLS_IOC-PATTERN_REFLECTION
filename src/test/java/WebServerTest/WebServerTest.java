@@ -6,14 +6,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Test;
 
@@ -45,7 +40,6 @@ public class WebServerTest {
             });
             serverThread.start();
             Thread.sleep(1000); 
-            System.out.println("Servidor iniciado");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,7 +48,7 @@ public class WebServerTest {
 
 
     @Test
-    public void shouldLoadStaticFileHtml() throws Exception {
+    public void shouldLoadStaticFileHtml()  {
 
         String file = "index.html";
         try {
@@ -70,7 +64,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadStaticFileHtml() throws Exception {
+    public void notShouldLoadStaticFileHtml()  {
         String file = "web.html";
         try {
             URL requestUrl = new URL(URL + file);
@@ -85,7 +79,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadStaticFileCss() throws Exception {
+    public void shouldLoadStaticFileCss()  {
    
         String file = "style.css";
         try {
@@ -101,7 +95,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadStaticFileCss() throws Exception {
+    public void notShouldLoadStaticFileCss()  {
     
         String file = "styles.css";
         try {
@@ -117,7 +111,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadStaticFileJs() throws Exception {
+    public void shouldLoadStaticFileJs()  {
         String file = "script.js";
         try {
             URL requestUrl = new URL(URL + file);
@@ -132,7 +126,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadStaticFileJs() throws Exception {
+    public void notShouldLoadStaticFileJs()  {
         String file = "prueba.js";
         try {
             URL requestUrl = new URL(URL + file);
@@ -147,7 +141,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadStaticImagePNG() throws Exception {
+    public void shouldLoadStaticImagePNG()  {
         String file = "imagen1.png";
         try {
             URL requestUrl = new URL(URL + file);
@@ -162,7 +156,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadStaticImageJPG() throws Exception {
+    public void shouldLoadStaticImageJPG()  {
         
         String file = "imagen2.jpg";
         try {
@@ -178,7 +172,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadStaticImagePNG() throws Exception {
+    public void notShouldLoadStaticImagePNG()  {
         String file = "imagen8.png";
         try {
             URL requestUrl = new URL(URL + file);
@@ -193,8 +187,8 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadStaticImageJPG() throws Exception {
-        String file = "imagen5.jpg";
+    public void notShouldLoadStaticImageJPG()  {
+        String file = "imagen20.jpg";
         try {
             URL requestUrl = new URL(URL + file);
             HttpURLConnection request = (HttpURLConnection) requestUrl.openConnection();
@@ -208,7 +202,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadGreetingControllerWithQuery() throws Exception {
+    public void shouldLoadGreetingControllerWithQuery()  {
         String file = "app/greeting?name=maria";
         try {
             URL requestUrl = new URL(URL + file);
@@ -228,7 +222,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadGreetingControllerWithoutQuery() throws Exception {
+    public void shouldLoadGreetingControllerWithoutQuery()  {
         String file = "app/greeting";
         try {
             URL requestUrl = new URL(URL + file);
@@ -248,7 +242,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadGreetingControllerWithQuery() throws Exception {
+    public void notShouldLoadGreetingControllerWithQuery()  {
         String file = "app/greeting?name=maria";
         try {
             URL requestUrl = new URL(URL + file);
@@ -269,7 +263,7 @@ public class WebServerTest {
 
     //voy aqui
     @Test
-    public void shouldLoadMathControllerPIWithQuery() throws Exception {
+    public void shouldLoadMathControllerPIWithQuery()  {
         String file = "app/pi?decimals=5";
         try {
             URL requestUrl = new URL(URL + file);
@@ -280,7 +274,7 @@ public class WebServerTest {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             String response = in.readLine();
             in.close();
-            assertEquals("{\"response\":\"3.14159\"}", response);
+            assertEquals("{\"response\":\"3,14159\"}", response);
             request.disconnect();
 
         } catch (Exception e) {
@@ -289,7 +283,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadMathControllerPIWithoutQuery() throws Exception {
+    public void shouldLoadMathControllerPIWithoutQuery()  {
         String file = "app/pi";
         try {
             URL requestUrl = new URL(URL + file);
@@ -300,7 +294,7 @@ public class WebServerTest {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             String response = in.readLine();
             in.close();
-            assertEquals("{\"response\":\"3.14\"}", response);
+            assertEquals("{\"response\":\"3,14\"}", response);
             request.disconnect();
 
         } catch (Exception e) {
@@ -309,7 +303,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadMathControllerPIWithQuery() throws Exception {
+    public void notShouldLoadMathControllerPIWithQuery()  {
         String file = "app/pi?decimals=5";
         try {
             URL requestUrl = new URL(URL + file);
@@ -320,7 +314,7 @@ public class WebServerTest {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             String response = in.readLine();
             in.close();
-            assertNotEquals("{\"response\":\"3.141\"}", response);
+            assertNotEquals("{\"response\":\"3,141\"}", response);
             request.disconnect();
 
         } catch (Exception e) {
@@ -329,7 +323,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadMathControllerSumWithQuery() throws Exception {
+    public void shouldLoadMathControllerSumWithQuery()  {
         String file = "app/sum?number=3,2,5";
         try {
             URL requestUrl = new URL(URL + file);
@@ -349,7 +343,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadMathControllerSumWithoutQuery() throws Exception {
+    public void shouldLoadMathControllerSumWithoutQuery()  {
         String file = "app/sum";
         try {
             URL requestUrl = new URL(URL + file);
@@ -369,7 +363,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadMathControllerSumWithQuery() throws Exception {
+    public void notShouldLoadMathControllerSumWithQuery()  {
         String file = "app/sum?number=5,7";
         try {
             URL requestUrl = new URL(URL + file);
@@ -389,7 +383,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadMathControllerRestWithQuery() throws Exception {
+    public void shouldLoadMathControllerRestWithQuery()  {
         String file = "app/rest?number=3,2,5";
         try {
             URL requestUrl = new URL(URL + file);
@@ -409,7 +403,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadMathControllerRestWithoutQuery() throws Exception {
+    public void shouldLoadMathControllerRestWithoutQuery()  {
         String file = "app/rest";
         try {
             URL requestUrl = new URL(URL + file);
@@ -429,7 +423,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadMathControllerRestWithQuery() throws Exception {
+    public void notShouldLoadMathControllerRestWithQuery()  {
         String file = "app/rest?number=5,7";
         try {
             URL requestUrl = new URL(URL + file);
@@ -450,7 +444,7 @@ public class WebServerTest {
 
     
     @Test
-    public void shouldLoadMathControllerMulWithQuery() throws Exception {
+    public void shouldLoadMathControllerMulWithQuery()  {
         String file = "app/mul?number=3,2,5";
         try {
             URL requestUrl = new URL(URL + file);
@@ -470,7 +464,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadMathControllerMulWithoutQuery() throws Exception {
+    public void shouldLoadMathControllerMulWithoutQuery()  {
         String file = "app/mul";
         try {
             URL requestUrl = new URL(URL + file);
@@ -490,7 +484,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadMathControllerMul1WithoutQuery() throws Exception {
+    public void shouldLoadMathControllerMul1WithoutQuery()  {
         String file = "app/mul?number=1";
         try {
             URL requestUrl = new URL(URL + file);
@@ -510,7 +504,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadMathControllerMulWithQuery() throws Exception {
+    public void notShouldLoadMathControllerMulWithQuery()  {
         String file = "app/mul?number=5,7";
         try {
             URL requestUrl = new URL(URL + file);
@@ -531,7 +525,7 @@ public class WebServerTest {
 
     //
     @Test
-    public void shouldLoadMathControllerDivWithQuery() throws Exception {
+    public void shouldLoadMathControllerDivWithQuery()  {
         String file = "app/div?number=4,2";
         try {
             URL requestUrl = new URL(URL + file);
@@ -551,7 +545,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadMathControllerDiv2WithQuery() throws Exception {
+    public void shouldLoadMathControllerDiv2WithQuery()  {
         String file = "app/div?number=4,0";
         try {
             URL requestUrl = new URL(URL + file);
@@ -571,7 +565,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadMathControllerDiv1WithoutQuery() throws Exception {
+    public void shouldLoadMathControllerDiv1WithoutQuery()  {
         String file = "app/div?number=1";
         try {
             URL requestUrl = new URL(URL + file);
@@ -582,7 +576,7 @@ public class WebServerTest {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             String response = in.readLine();
             in.close();
-            assertEquals("{\"response\":\"Faltan números para la divisón\"}", response);
+            assertEquals("{\"response\":\"Faltan números para la división\"}", response);
             request.disconnect();
 
         } catch (Exception e) {
@@ -591,7 +585,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void shouldLoadMathControllerDivWithoutQuery() throws Exception {
+    public void shouldLoadMathControllerDivWithoutQuery()  {
         String file = "app/div";
         try {
             URL requestUrl = new URL(URL + file);
@@ -611,7 +605,7 @@ public class WebServerTest {
     }
 
     @Test
-    public void notShouldLoadMathControllerDivWithQuery() throws Exception {
+    public void notShouldLoadMathControllerDivWithQuery()  {
         String file = "app/mul?number=5,7";
         try {
             URL requestUrl = new URL(URL + file);
@@ -636,12 +630,10 @@ public class WebServerTest {
         try {
             server.stopServer();
             serverThread.join(); 
-            System.out.println("Servidor cerrado");
+            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    
-
 }

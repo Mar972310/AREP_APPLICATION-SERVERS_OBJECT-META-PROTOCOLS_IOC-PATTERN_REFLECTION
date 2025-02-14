@@ -1,4 +1,3 @@
-
 package edu.escuelaing.arep;
 import java.net.*;
 import java.io.*;
@@ -10,29 +9,40 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiFunction;
 
+import edu.escuelaing.arep.FrameWork.FrameWorkSetting;
 import edu.escuelaing.arep.annotation.RequestParam;
 
 /**
- *
- * @author Maria Valentina Torres Monsalve
+ * The HttpRequestHandler class is responsible for handling HTTP requests from clients.
+ * It processes the request, determines the appropriate response, and sends it back to the client.
  */
 public class HttpRequestHandler {
+
     private final Socket clientSocket;
     private String ruta;
     PrintWriter out ;
     BufferedReader in ;
     BufferedOutputStream bodyOut ;
-    
-    
+
+    /**
+     * Constructs an HttpRequestHandler with the specified client socket and base directory path.
+     *
+     * @param clientSocket The socket connected to the client.
+     * @param ruta The base directory path for serving static files.
+     */
     public HttpRequestHandler(Socket clientSocket, String ruta){
         this.clientSocket = clientSocket;
         this.ruta = ruta;
     }
     
+    /**
+     * Handles the incoming HTTP request by reading the request, processing it, and sending a response.
+     *
+     * @throws IOException If an I/O error occurs while handling the request.
+     * @throws URISyntaxException If the request URI is malformed.
+     */
     public void handlerRequest() throws IOException, URISyntaxException{
-        
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         bodyOut = new BufferedOutputStream(clientSocket.getOutputStream());
@@ -51,6 +61,7 @@ public class HttpRequestHandler {
                 break;
             }
         }
+        System.out.println("Received request: " + method + " " + file);
         rediretMethod(method,file);
         out.close();
         bodyOut.close();
@@ -58,7 +69,14 @@ public class HttpRequestHandler {
         clientSocket.close();  
     }  
 
-    //falta arreglar esto :) y html
+    /**
+     * Redirects the request to the appropriate handler based on the HTTP method and file path.
+     *
+     * @param method The HTTP method (e.g., GET, POST).
+     * @param file The requested file path.
+     * @throws IOException If an I/O error occurs while handling the request.
+     * @throws URISyntaxException If the request URI is malformed.
+     */
     public void rediretMethod(String method, String file) throws IOException, URISyntaxException{
         URI requestFile = new URI(file);
         String fileRequest = requestFile.getPath();
@@ -71,33 +89,44 @@ public class HttpRequestHandler {
         }
     }
     
+    /**
+     * Handles requests for application endpoints by invoking the appropriate service method.
+     *
+     * @param method The HTTP method (e.g., GET, POST).
+     * @param fileRequest The requested file path.
+     * @param queryRequest The query string from the request.
+     */
     public void handlerRequestApp(String method, String fileRequest, String queryRequest){
         String endpoint = fileRequest.substring(4);
         Method service = null;
         String code = "404";
         String outputLine = " ";
-        System.out.println(endpoint);
         if(method.equals("GET")){
-            service = HttpServer.servicesGet.get(endpoint);
+            service = FrameWorkSetting.getGetService(endpoint);
             code = "200";
         }else if(method.equals("POST")){
-            service = HttpServer.servicesPost.get(endpoint);
+            service = FrameWorkSetting.getPostService(endpoint);
             code = "201";
         }
         if(service != null){
             outputLine = invokeHandler(service,queryRequest);
             outputLine = "{\"response\":\"" + outputLine + "\"}";                
         }else{
-            outputLine = "{\"response\":Method not supported}"; ;
-            code = "404";
+            outputLine = "{\"response\":Method not supported}";
         }
         String responseHeader = requestHeader("text/json", outputLine.length(), code);
-        out.println(responseHeader);  
-        out.flush();
+        out.println(responseHeader);
         out.println(outputLine);  
         out.flush();
     }
 
+    /**
+     * Invokes the appropriate service method with the provided query parameters.
+     *
+     * @param service The service method to invoke.
+     * @param query The query string containing the parameters.
+     * @return The response from the service method as a String.
+     */
     public String invokeHandler(Method service, String query){
         String response = "";
         try {
@@ -133,12 +162,18 @@ public class HttpRequestHandler {
             
         } catch (Exception e) {
             e.printStackTrace();
-            out.println("Error executing service method: " + e.getMessage());
+            System.out.println("Error executing service method: " + e.getMessage());
         }
         return response;
     }
     
 
+    /**
+     * Parses the query string into a map of key-value pairs.
+     *
+     * @param query The query string to parse.
+     * @return A map containing the query parameters.
+     */
     public Map<String, String> queryParams(String query){
         Map<String, String> queryParams = new HashMap<>();
         if (query == null || query.isEmpty()) {
@@ -154,6 +189,13 @@ public class HttpRequestHandler {
         return queryParams;
     }
 
+    /**
+     * Handles requests for static files by reading the file and sending it back to the client.
+     *
+     * @param file The path to the static file.
+     * @param contentType The content type of the file.
+     * @throws IOException If an I/O error occurs while reading the file.
+     */
     public void requestStaticHandler(String file, String contentType) throws IOException{
         if(fileExists(file)){
             byte[] requestfile = readFileData(file);
@@ -167,6 +209,13 @@ public class HttpRequestHandler {
         } 
     }
 
+    /**
+     * Reads the data from the specified file and returns it as a byte array.
+     *
+     * @param requestFile The path to the file to read.
+     * @return The file data as a byte array.
+     * @throws IOException If an I/O error occurs while reading the file.
+     */
     public byte[] readFileData(String requestFile) throws IOException {
         File file = new File(requestFile);
 
@@ -192,11 +241,23 @@ public class HttpRequestHandler {
     }
     
 
+    /**
+     * Checks if a file exists at the specified path.
+     *
+     * @param filePath The path to the file.
+     * @return True if the file exists, false otherwise.
+     */
     public static boolean fileExists(String filePath) {
         Path path = Paths.get(filePath);
         return Files.exists(path);
     }
     
+    /**
+     * Determines the content type of a file based on its extension.
+     *
+     * @param requestFile The file path.
+     * @return The content type of the file.
+     */
     public String getContentType(String requestFile){
         String contentType = " ";
         if (requestFile.endsWith(".html")){
@@ -215,6 +276,14 @@ public class HttpRequestHandler {
         return contentType;  
     }
     
+    /**
+     * Generates an HTTP response header with the specified content type, content length, and status code.
+     *
+     * @param contentType The content type of the response.
+     * @param contentLength The length of the response content.
+     * @param code The HTTP status code.
+     * @return The generated HTTP response header.
+     */
     public String requestHeader(String contentType, int contentLength, String code){
         String outHeader = "HTTP/1.1 " + code + " OK\r\n"
                     + "Content-Type: " + contentType + "\r\n"
@@ -222,6 +291,11 @@ public class HttpRequestHandler {
         return outHeader;
     }
     
+    /**
+     * Generates a 404 Not Found HTTP response with an HTML error page.
+     *
+     * @return The 404 Not Found HTTP response.
+     */
     public static String notFound(){
         String outputLine = "HTTP/1.1. 404 Not Found\r\n"
                         +"Content-type: text/html\r\n"
