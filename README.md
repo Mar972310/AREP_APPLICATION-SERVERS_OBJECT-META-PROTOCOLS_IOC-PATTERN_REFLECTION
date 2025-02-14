@@ -1,7 +1,7 @@
 
-# Web Framework for REST Services and Static File Management
+# Web server with IoC Framework
 
-This project extends an existing web server into a full-featured framework, enabling REST backend services alongside static file management. It provides tools for defining REST services with lambda functions, handling query parameters, and specifying static file locations, simplifying modern web application development.
+This project extends an existing web server into a full-featured framework, similar to Apache, focused on Java. It now uses annotations instead of lambda functions to define REST services. The server is capable of delivering HTML pages and PNG images. Additionally, it provides an Inversion of Control (IoC) framework for building web applications from POJOs, simplifying the development of modern and modular applications.
 
 
 ## Getting Started
@@ -65,8 +65,8 @@ You need to have the following installed:
 1. Clone the repository and navigate to the folder containing the `pom.xml` file using the following commands:
 
    ```sh
-   git clone https://github.com/Mar972310/AREP: `MICROFRAMEWORKS: `WEB.git
-   cd AREP: `MICROFRAMEWORKS: `WEB
+   git clone https://github.com/Mar97231/AREP_APPLICATION-SERVERS_OBJECT-META-PROTOCOLS_IOC-PATTERN_REFLECTION.git
+   cd AREP_APPLICATION-SERVERS_OBJECT-META-PROTOCOLS_IOC-PATTERN_REFLECTION
    ```
 
 2. Build the project:
@@ -78,35 +78,72 @@ You need to have the following installed:
    The console output should look something like this:
 
    ```sh
-   [INFO] Building jar: /Users/maritzamonsalvebautista/Downloads/AREP: `MICROFRAMEWORKS: `WEB/target/HttpServer-1.0-SNAPSHOT.jar
-   [INFO] ------------------------------------------------------------------------
-   [INFO] BUILD SUCCESS
-   [INFO] ------------------------------------------------------------------------
-   [INFO] Total time:  7.042 s
-   [INFO] Finished at: 2025-02-06T21:44:52-05:00
-   [INFO] ------------------------------------------------------------------------
+    [INFO] Building jar: /Users/maritzamonsalvebautista/Downloads/AREP_APPLICATION-SERVERS_OBJECT-META-PROTOCOLS_IOC-PATTERN_REFLECTION/target/HttpServer-1.0-SNAPSHOT.jar
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Total time:  6.546 s
+    [INFO] Finished at: 2025-02-13T20:54:00-05:00
+    [INFO] ------------------------------------------------------------------------
    ```
 
 3. Run the application:
 
       ```sh
-      java -cp target/HttpServer-1.0-SNAPSHOT.jar edu.escuelaing.arep.WebApplication
+      java -cp "target/classes" edu.escuelaing.arep.HttpServer
       ```
       The console should display the following message:
       ```sh
-      Ready to receive ...
+      Ready to receive on port: 35000 ...
       ```
-      You can now access static resources like `index.html` or other resources stored in the `resources/static` folder.
+      You can now access static resources like `index.html` or other resources stored in the `resources` folder.
 
-4. Search in the browser http://localhost:35000/index.html, also http://localhost:35000/imagen1.png
+4. Search in the browser http://localhost:35000/index.html, also http://localhost:35000/imagen1.jpg
 
-   ![index.html](/images/index.png)
-   ![index.html](/images/index2.png)
-   ![imagen](/images/image.png)
+   ![index.html](/images/img.png)
+   ![index.html](/images/image2.png)
+   ![imagen](/images/image1.png)
 
-## Architecture
+# Architecture
 
-![alt text](images/arquitectura.png)
+## Server directory structure
+![alt text](images/directory.png)
+
+### **Core Components**  
+
+- **`HttpServer`**: The entry point of the application. Initializes the server, listens for incoming connections, and delegates request handling to `HttpRequestHandler`.  
+- **`HttpRequestHandler`**: Handles HTTP requests and responses. It processes incoming requests, determines whether to serve a static file or forward the request to a registered controller method.  
+- **`FrameWorkSetting`**: The core framework that scans classes annotated with `@RestController`, registers methods annotated with `@GetMapping` and `@PostMapping`, and routes HTTP requests accordingly.  
+- **Annotations**: Includes custom annotations such as `@RestController`, `@GetMapping`, `@PostMapping`, and `@RequestParam` for defining web service routes and extracting parameters.  
+- **Controllers**:  
+  - `GrettingController`: Defines the `/greeting` endpoint, which returns a personalized greeting.  
+  - `MathController`: Provides RESTful endpoints for mathematical operations such as sum, subtraction, multiplication, division, and square root.  
+
+---
+
+### **Flow of User Interaction**  
+
+1. **Request**: A user sends an HTTP request from the browser (e.g., `GET /app/greeting?name=Maria`).  
+2. **Request Handling**:  
+   - `HttpServer` receives the request and passes it to `HttpRequestHandler`.  
+   - If it's a request for a static file, `HttpRequestHandler` serves the file.  
+   - If it's a request for a dynamic resource (like `/greeting` or `/sum`), it forwards the request to `FrameWorkSetting`.  
+3. **Framework Processing**:  
+   - `FrameWorkSetting` scans registered controllers and finds the method mapped to the requested endpoint.  
+   - It extracts query parameters (if any) and invokes the corresponding method.  
+4. **Response**: The controller method returns a response (e.g., `"Hello Maria!"`), which `HttpRequestHandler` sends back to the client.  
+
+---
+
+### **Example Interaction**  
+
+For the endpoint `GET /app/greeting?name=Maria`:  
+
+1. **User Request**: The user sends a request from a browser.  
+2. **HttpServer**: Receives the request and passes it to `HttpRequestHandler`.  
+3. **Framework Routing**:  
+   - `FrameWorkSetting` identifies `GrettingController` and invokes the `greeting()` method.  
+4. **Response**: The method returns `"Hello Maria!"`, which is sent back to the user's browser.
 
 
 
@@ -186,84 +223,93 @@ Processes and extracts query parameters from an HTTP request.
 3. **Server Shutdown**: When the server needs to stop, the `ServerSocket` is closed and the server is gracefully shut down.
 
 ## Class Diagram
-![alt text](images/clases.png)
+![alt text](images/classesDiagram.png)
 
 ### Class Descriptions
 
-### 1. **HttpRequest**:
-- **Responsibility**: Represents an HTTP request and handles query parameters.
-- **Methods**:
-  - **Constructor `HttpRequest(Map<String, String> queryParams)`**: Initializes the HTTP request with a map of query parameters.
-  - **Constructor `HttpRequest(String queryString)`**: Initializes the HTTP request from a query string, which is parsed by the `parseQueryString` method.
-  - **`getQueryParam(String key)`**: Retrieves the value of a query parameter, URL-decoded.
-  - **`parseQueryString(String queryString)`**: Parses the query string and converts it into a map of key-value parameters.
+### 1. **FrameWorkSetting**  
+- **Responsibility**: Manages the discovery and mapping of annotated controller methods to their corresponding HTTP routes.  
+- **Attributes**:  
+  - `static HashMap<String, Method> servicesGet`: Stores methods mapped to GET requests.  
+  - `static HashMap<String, Method> servicesPost`: Stores methods mapped to POST requests.  
+- **Methods**:  
+  - **`loadComponents()`**: It scans the package containing the controllers, identifies classes annotated with `@RestController`, and registers methods marked with `@GetMapping` and `@PostMapping` in the `servicesGet` and `servicesPost` maps, respectively.
+  - **`getGetService(String path)`**: Retrieves the method associated with a GET request for the given path.  
+  - **`getPostService(String path)`**: Retrieves the method associated with a POST request for the given path.  
 
 ---
 
-### 2. **HttpRequestHandler**:
-- **Responsibility**: Handles the HTTP request from a client and responds with the appropriate results (either static or dynamic content depending on the request type).
-- **Attributes**:
-  - `Socket clientSocket`: The socket used for communication with the client.
-  - `String route`: The base path for static files.
-  - `PrintWriter out`: Used to send the response to the client.
-  - `BufferedReader in`: Reads the incoming client request.
-  - `BufferedOutputStream bodyOut`: Sends the response body data.
-- **Methods**:
-  - **Constructor `HttpRequestHandler(Socket clientSocket, String route)`**: Initializes the handler with the client socket and base route.
-  - **`handleRequest()`**: This method handles the HTTP request. It reads the request, determines the method (GET or POST), and the requested file, then delegates the response to the appropriate method (`redirectMethod`).
-  - **`redirectMethod(String method, String file)`**: Depending on the HTTP method (GET or POST), it looks for the appropriate service (stored in the `servicesGet` or `servicesPost` maps) or serves the static file.
-  - **`requestStaticHandler(String file, String contentType)`**: Serves static files if they exist, such as HTML, CSS, JS, etc.
-  - **`readFileData(String requestFile)`**: Reads data from a file.
-  - **`fileExists(String filePath)`**: Checks if a file exists on the system.
-  - **`getContentType(String requestFile)`**: Determines the content type of a file based on its extension.
-  - **`requestHeader(String contentType, int contentLength, String code)`**: Generates the HTTP response header.
-  - **`notFound()`**: Returns an HTML response indicating that the file was not found (404).
+### 2. **Annotations**  
+#### **2.1 `@RestController`**  
+- **Responsibility**: Marks a class as a REST controller, making its methods available as HTTP endpoints.  
+
+#### **2.2 `@GetMapping`**  
+- **Responsibility**: Specifies that a method should handle GET requests for a given path.  
+- **Attributes**:  
+  - `String value`: The URL path associated with the method.  
+
+#### **2.3 `@PostMapping`**  
+- **Responsibility**: Specifies that a method should handle POST requests for a given path.  
+- **Attributes**:  
+  - `String value`: The URL path associated with the method.  
+
+#### **2.4 `@RequestParam`**  
+- **Responsibility**: Maps a query parameter from the request to a method parameter.  
+- **Attributes**:  
+  - `String value`: The name of the request parameter.  
+  - `String defaultValue`: The default value if the parameter is not provided.  
 
 ---
 
-### 3. **HttpResponse**:
-- **Responsibility**: Represents an HTTP response sent to the client.
-- **Attributes**:
-  - `int statusCode`: The HTTP status code of the response (e.g., 200 for OK).
-  - `String statusMessage`: The message associated with the status code (e.g., "OK").
-  - `String body`: The body of the response (e.g., HTML or JSON content).
-  - `Map<String, String> headers`: A map of HTTP headers.
-- **Methods**:
-  - **`getStatusCode()` and `setStatusCode(int statusCode)`**: Get or set the status code.
-  - **`getStatusMessage()` and `setStatusMessage(String statusMessage)`**: Get or set the status message.
-  - **`getBody()` and `setBody(String body)`**: Get or set the body of the response.
-  - **`addHeader(String key, String value)`**: Add a header to the response.
-  - **`send(PrintWriter out)`**: Sends the HTTP response to the client, including headers and body.
+### 3. **GrettingController**  
+- **Responsibility**: Provides a simple greeting endpoint.  
+- **Attributes**:  
+  - `AtomicLong counter`: A counter to track the number of requests.  
+- **Methods**:  
+  - **`greeting(String name)`**:  
+    - Accepts a `name` parameter via `@RequestParam`.  
+    - Returns a greeting message in the format `"Hello {name}!"`.  
 
 ---
 
-### 4. **HttpServer**:
-- **Responsibility**: The HTTP server that accepts client connections, handles requests, and responds with either static or dynamic content.
-- **Attributes**:
-  - `int PORT`: The port on which the server listens for requests.
-  - `boolean running`: Indicates whether the server is running.
-  - `ServerSocket serverSocket`: The server socket that listens for client requests.
-  - `String route`: The base path for static files.
-  - `HashMap<String, BiFunction<HttpRequest, HttpResponse, String>> servicesGet`: A map that associates routes with `GET` services.
-  - `HashMap<String, BiFunction<HttpRequest, HttpResponse, String>> servicesPost`: A map that associates routes with `POST` services.
-- **Methods**:
-  - **`main(String[] args)`**: The entry point that creates an instance of `HttpServer` and starts the server.
-  - **`startServer()`**: Starts the server and accepts incoming connections, handling them with `HttpRequestHandler`.
-  - **`get(String path, BiFunction<HttpRequest, HttpResponse, String> restService)`**: Registers a service for `GET` requests.
-  - **`post(String path, BiFunction<HttpRequest, HttpResponse, String> restService)`**: Registers a service for `POST` requests.
-  - **`staticFiles(String path)`**: Sets the base path for static files.
-  - **`stopServer()`**: Stops the server.
+### 4. **MathController**  
+- **Responsibility**: Exposes mathematical operations as HTTP endpoints.  
+- **Methods**:  
+  - **`pi(String decimal)`**: Returns the value of π formatted with the specified number of decimal places.  
+  - **`sum(String number)`**: Splits the input string by commas and returns the sum of the numbers.  
+  - **`sustraction(String number)`**: Splits the input string and subtracts the numbers sequentially.  
+  - **`multiplication(String number)`**: Splits the input string and multiplies the numbers sequentially. Returns an error message if there are fewer than two numbers.  
+  - **`division(String number)`**: Divides the first number by the second. Returns an error message if division by zero is attempted.  
+  - **`sqrt(String number)`**:  
+    - Returns the square root of the given number.  
+    - Returns an error message if the input is negative.  
 
 ---
 
-### **Relationships between the classes**:
-- **`HttpServer`** manages client connections.
-- **`HttpRequestHandler`** handles the logic for each request and delegates to the services registered in **`HttpServer`** or serves static files.
-- **`HttpRequest`** represents the details of the HTTP request, such as query parameters.
-- **`HttpResponse`** generates the HTTP response that is sent to the client.
+### 5. **HttpRequestHandler**  
+- **Responsibility**: Handles incoming HTTP requests, processes them, and sends responses.  
+- **Methods**:  
+  - **`handlerRequest()`**:  
+    - Reads the incoming request.  
+    - Parses the request method, path, and query parameters.  
+    - Calls `handlerRequestApp()` to process the request.  
+  - **`handlerRequestApp(String method, String fileRequest, String queryRequest)`**:  
+    - Executes the corresponding method from `FrameWorkSetting` based on the request path.  
 
+---
 
-## TEST REPORT - WEB FRAMEWORK FOR REST SERVICES AND STATIC FILE MANAGEMENT
+### 6. **HttpServer**  
+- **Responsibility**: Initializes and manages the HTTP server, handling client connections.  
+- **Attributes**:  
+  - `static final int PORT`: The port number on which the server listens (35000).  
+  - `boolean running`: Controls whether the server is running.  
+  - `ServerSocket serverSocket`: The server socket for accepting connections.  
+  - `static String ruta`: The directory containing static resources.  
+- **Methods**:  
+  - **`startServer()`**: Starts the server and listens for incoming connections and accepts client requests and delegates them to `HttpRequestHandler`.  
+  - **`stopServer()`**: Stops the server by closing the server socket.
+
+## TEST REPORT - Web Server IoC Framework
 
 ### Autor
 
@@ -271,41 +317,97 @@ Name: Maria Valentina Torres Monsalve
 
 ### Date
 
-Date: 06/02/2025
+Date: 13/02/2025
 
 ### Test conducted
 
+### **Static HTML File Loading Tests**  
 
-1. **Test:** `shouldLoadStaticFileHtml`: This test checks that the static file `index.html` loads correctly from the server. A GET request is made to the file, and a response with status code 200 is expected, indicating that the file is available and served correctly.
+- **`shouldLoadStaticFileHtml`**: Verifies that the server correctly loads `index.html` by sending a `GET` request and expecting a `200 OK` response, indicating that the file is available.  
 
-2. **Test:** `notShouldLoadStaticFileHtml`: In this test, it is verified that the server cannot load a non-existent static file, `web.html`. A GET request is made, and a status code 404 is expected, indicating that the file was not found.
+- **`notShouldLoadStaticFileHtml`**: Ensures that the server does not load a non-existent file `web.html` by sending a `GET` request and expecting a `404 Not Found` response.  
 
-3. **Test:**`shouldLoadStaticFileCss`: This test validates that the CSS file `style.css` is served correctly when requested via GET. A response with status code 200 is expected, indicating that the file is available and served correctly.
+### **CSS File Loading Tests**  
 
-4. **Test:** `notShouldLoadStaticFileCss`: This test ensures that the server cannot serve the non-existent CSS file `styles.css`. A GET request is made, and a status code 404 is expected, meaning the file was not found.
+- **`shouldLoadStaticFileCss`**: Checks that the server correctly serves `style.css` by sending a `GET` request and expecting a `200 OK` response.  
 
-5. **Test:** `shouldLoadStaticFileJs`: It is verified that the JavaScript file `script.js` is correctly loaded from the server. The expected response is a status code 200, indicating that the file exists and was served correctly.
+- **`notShouldLoadStaticFileCss`**: Verifies that the server does not serve a non-existent file `styles.css` by sending a `GET` request and expecting a `404 Not Found` response.  
 
-6. **Test:** `notShouldLoadStaticFileJs`: In this test, it is validated that the server does not serve the non-existent JavaScript file `prueba.js`. A status code 404 is expected, indicating that the file was not found.
+### **JavaScript File Loading Tests**  
 
-7. **Test:** `shouldLoadStaticImagePNG`: This test ensures that the image `imagen1.png` is correctly loaded from the server. The expected response is a status code 200, indicating that the image is available and served correctly.
+- **`shouldLoadStaticFileJs`**: Ensures that the server correctly loads `script.js` by sending a `GET` request and expecting a `200 OK` response.  
 
-8. **Test:** `shouldLoadStaticImageJPG`: It is verified that the image file `imagen2.jpg` loads correctly when a GET request is made. The expected response is a status code 200, confirming that the file exists and was served properly.
+- **`notShouldLoadStaticFileJs`**: Verifies that the server does not serve a non-existent file `prueba.js` by sending a `GET` request and expecting a `404 Not Found` response.
 
-9. **Test:** `notShouldLoadStaticImagePNG`: This test validates that the server cannot serve the non-existent PNG image file `imagen8.png`. A status code 404 is expected, meaning the file was not found.
+![alt text](images/htmlfile.png)
+![alt text](images/htmlnot.png) 
 
-10. **Test:** `notShouldLoadStaticImageJPG`: Here, it is ensured that the server does not serve the non-existent JPG image file `imagen5.jpg`. The expected response is a status code 404, indicating that the file was not found.
+### **Static Image Loading Tests**  
 
-11. **Test:** `shouldLoadRestGet`: This test checks that the REST service `app/helloget` correctly handles a GET request with the parameter `name=maria`. A response with status code 200 and the appropriate message in the body, such as `{ "response": "Get received: maria" }`, is expected.
+- **`shouldLoadStaticImagePNG`**: Checks that the server can serve `imagen1.png` by sending a `GET` request and expecting a `200 OK` response.  
 
-12. **Test:** `shouldLoadRestHello`: It is validated that the REST service `app/hello` responds correctly to a GET request. A response with status code 200 and the message `{ "response": "Hello, world" }` is expected, indicating the server is functioning properly.
+- **`shouldLoadStaticImageJPG`**: Verifies that the server correctly loads `imagen2.jpg` by sending a `GET` request and expecting a `200 OK` response.  
 
-13. **Test:** `shouldLoadRestPost`: In this test, it is verified that the REST service `app/hellopost` correctly handles a POST request with the parameter `name=valentina`. The expected response is status code 201 along with the message `{ "response": "Post received: valentina" }`.
+- **`notShouldLoadStaticImagePNG`**: Ensures that the server does not serve `imagen8.png` because it does not exist, expecting a `404 Not Found` response.  
 
-14. **Test:** `notShouldLoadRestPost`: This test ensures that the server returns a status code 404 when an incorrect POST request is made to the `app/hello/x` service, which is not supported. The response should include the message `{ "response": "Method not supported" }`.
+- **`notShouldLoadStaticImageJPG`**: Checks that `imagen20.jpg` is not available on the server, expecting a `404 Not Found` response.  
+
+![alt text](images/imageStatic.png)
+![alt text](images/image3.png)
+
+### **`greeting` Controller Tests**  
+
+- **`shouldLoadGreetingControllerWithQuery`**: Verifies that the API returns `{"response":"Hello maria !"}` when requesting `app/greeting?name=maria`.  
+
+- **`shouldLoadGreetingControllerWithoutQuery`**: Ensures that the API returns `{"response":"Hello world !"}` when requesting `app/greeting` without parameters.  
+
+- **`notShouldLoadGreetingControllerWithQuery`**: Ensures that the API **does not** return `{"response":"Hello juan !"}` when requesting `app/greeting?name=maria`.  
+
+![alt text](images/hello.png)
+![alt text](images/HELLO2.png)
+![alt text](images/hello3.png)
+
+## **Mathematical Controller Tests**  
+
+- **`shouldLoadMathControllerPIWithQuery`**: Verifies that the API returns `{"response":"3,14159"}` when requesting `app/pi?decimals=5`.  
+
+- **`shouldLoadMathControllerPIWithoutQuery`**: Ensures that the API returns `{"response":"3,14"}` when requesting `app/pi` without parameters.  
+
+- **`notShouldLoadMathControllerPIWithQuery`**: Ensures that the API **does not** return `{"response":"3,141"}` when requesting `app/pi?decimals=5`.  
+![alt text](images/pi1.png)
+![alt text](images/pi2.png)
+![alt text](images/pi3.png)
+
+- **`shouldLoadMathControllerSumWithQuery`**: Verifies that the API returns `{"response":"10"}` when requesting `app/sum?number=3,2,5`.  
+
+- **`shouldLoadMathControllerSumWithoutQuery`**: Ensures that the API returns `{"response":"No numbers entered"}` when requesting `app/sum` without parameters.  
+
+![alt text](images/sum1.png)
+![alt text](images/sum2.png)
+
+- **`shouldLoadMathControllerDivWithQuery`**: Ensures that the API returns `{"response":"2.0"}` when requesting `app/div?number=4,2`.  
+
+- **`shouldLoadMathControllerDiv2WithQuery`**: Verifies that the API returns `{"response":"Cannot divide by 0"}` when requesting `app/div?number=4,0`, properly handling division by zero.  
+
+![alt text](images/div1.png)
+![alt text](images/div2.png)
+
+- **`shouldLoadMathControllerMulWithQuery`**: Ensures that the API returns the correct multiplication result when requesting `app/mul?number=2,3,4`, expecting `{"response":"24"}`.  
+
+- **`notShouldLoadMathControllerMulWithQuery`**: Verifies that the API does not return an incorrect multiplication result when requesting `app/mul?number=2,3,4`, ensuring proper computation.  
+
+![alt text](images/mul1.png)
+![alt text](images/mul2.png)
 
 
-![test](images/testMicroFrameWork.png)
+- **`shouldLoadMathControllerSubWithQuery`**: Ensures that the API returns the correct subtraction result when requesting `app/sub?number=10,3,2`, expecting `{"response":"5"}`.  
+
+- **`notShouldLoadMathControllerSubWithQuery`**: Verifies that the API does not return an incorrect subtraction result when requesting `app/sub?number=10,3,2`, ensuring proper computation.  
+
+![alt text](images/rest1.png)
+![alt text](images/rest2.png)
+
+![test](images/test.png)
 
 ## Built With
 

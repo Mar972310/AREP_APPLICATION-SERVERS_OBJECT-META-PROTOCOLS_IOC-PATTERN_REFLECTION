@@ -18,7 +18,7 @@ public class MathController {
     @GetMapping("/sum")
     public String sum(@RequestParam(value="number", defaultValue="") String number) {
         if (number.isEmpty()){
-            return "No ingresó números";
+            return "No numbers were entered";
         }
         String[] numbers = number.split(",");
         int sum = 0;
@@ -31,7 +31,7 @@ public class MathController {
     @GetMapping("/rest")
     public String sustraction(@RequestParam(value="number", defaultValue="") String number) {
         if (number.isEmpty()) {
-            return "No ingresó números";
+            return "No numbers were entered";
         }
         String[] numbers = number.split(",");
         int rest = Integer.parseInt(numbers[0].trim());
@@ -44,11 +44,11 @@ public class MathController {
     @GetMapping("/mul")
     public String multiplication(@RequestParam(value="number", defaultValue="") String number) {
         if (number.isEmpty()){
-            return "No ingresó números";
+            return "No numbers were entered";
         } 
         String[] numbers = number.split(",");
         if (numbers.length < 2){
-            return "Faltan números para la multiplicación";
+            return "Missing numbers for multiplication";
         }
         int mul = Integer.parseInt(numbers[0].trim());
         for (int i = 1; i < numbers.length; i++) {
@@ -60,16 +60,16 @@ public class MathController {
     @GetMapping("/div")
     public String division(@RequestParam(value="number", defaultValue="") String number) {
         if (number.isEmpty()) {
-            return "No ingresó números";
+            return "No numbers were entered";
         }
         String[] numbers = number.split(",");
         if (numbers.length < 2) {
-            return "Faltan números para la división";
+            return "Missing numbers for division";
         }
         int num1 = Integer.parseInt(numbers[0].trim());
         int num2 = Integer.parseInt(numbers[1].trim());
         if (num2 == 0){
-            return "No se puede dividir por 0";
+            return "Cannot divide by 0";
         } 
         return String.valueOf((float) num1 / num2);
     }
@@ -77,11 +77,11 @@ public class MathController {
     @GetMapping("/sqrt")
     public String sqrt(@RequestParam(value="number", defaultValue="") String numbers) {
         if (numbers.isEmpty()) {
-            return "No ingresó números";
+            return "No numbers were entered";
         }
         int number = Integer.parseInt(numbers.trim());
         if (number < 0) {
-            return "No se puede calcular la raíz cuadrada de un número negativo";
+            return "Cannot calculate the square root of a negative number";
         }
         return String.valueOf(Math.sqrt(number));
     }
